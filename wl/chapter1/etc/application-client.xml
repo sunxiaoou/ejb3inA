@@ -1,0 +1,8 @@
+<?xml version = '1.0'?>
+<!DOCTYPE application-client PUBLIC "-//Sun Microsystems, Inc.//DTD J2EE Application Client 1.2//EN" "http://java.sun.com/j2ee/dtds/application-client_1_2.dtd">
+<application-client>
+	<ejb-ref>         
+		<ejb-ref-name>ejb/HelloUser</ejb-ref-name>         
+		<remote>ejb3inaction.example.HelloUser</remote>    
+	</ejb-ref>
+</application-client>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="configure-weblogic" default="all" basedir=".">
+    <!-- set global properties for this build -->
+    <import file="common.xml"/>
+
+    <target name="all" depends="crtjdbc, crtjms"/>
+
+    <target name="crtjdbc">
+        <java classname="weblogic.WLST" fork="yes">
+            <arg line="wlst/crtjdbc.py ${admin.host} ${admin.port} ${admin.user} ${admin.password} ${server.name}" />
+        </java>
+    </target>
+
+    <target name="crtjms">
+        <java classname="weblogic.WLST" fork="yes">
+            <arg line="wlst/crtjms.py ${admin.host} ${admin.port} ${admin.user} ${admin.password} ${server.name}" />
+        </java>
+     </target>
+
+    <target name="dltjdbc">
+        <java classname="weblogic.WLST" fork="yes">
+            <arg line="wlst/dltjdbc.py ${admin.host} ${admin.port} ${admin.user} ${admin.password}" />
+        </java>
+     </target>
+
+    <target name="dltjms">
+        <java classname="weblogic.WLST" fork="yes">
+            <arg line="wlst/dltjms.py ${admin.host} ${admin.port} ${admin.user} ${admin.password}" />
+        </java>
+     </target>
+
+</project>

@@ -1,0 +1,6 @@
+<persistence>
+    <persistence-unit name="actionBazaar">
+        <jta-data-source>jdbc/__default</jta-data-source>
+        <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+    </persistence-unit>
+</persistence>

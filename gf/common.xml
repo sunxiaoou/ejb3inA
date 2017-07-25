@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="anttasks">
+
+    <property environment="env"/>
+
+<!-- ** Customize as per your environment **** -->
+        
+   <property name="J2EE_HOME" value="${env.AS_INSTALL}"/>
+   <property name="JAVA_HOME" value="${env.JAVA_HOME}"/>
+   <property name="SPRING_HOME" value="${env.SPRING_HOME}"/>
+   <property name="admin.host" value="localhost" />
+        <property name="admin.port" value="4848" />
+        <property name="admin.user" value="admin" />
+        <property name="http.port" value="3734" />
+
+        <property name="admin.password" value="adminadmin" />
+        <property name="PWD_FILE" value="{$J2EE_HOME}/adminpass"/>
+
+        <property name="ASADMIN" value="asadmin" />
+        <property name="WSIMPORT" value="wsimport" />
+        <property name="APPCLIENT" value="appclient" />
+          
+    <property name="derby.driver" value="org.apache.derby.jdbc.ClientDriver" />
+    <property name="derby.url" value="jdbc:derby://localhost:1527/sun-appserv-samples;create=true;ServerName=localhost;databaseName=sun-appserv-samples" />
+    <property name="derby.username" value="app" />
+    <property name="derby.password" value="app" />
+
+  
+    <!-- Glassfish example <property name="J2EE_HOME" value="d:\opensource\glassfish"/>
+    -->
+
+       
+
+    
+    <path id="common.j2ee.class.path">
+   
+    <!-- Compile classpath for J2EE based applications for Sun Glassfish -->
+   
+     <pathelement location="${J2EE_HOME}/lib/javaee.jar"/>
+     <pathelement location="${J2EE_HOME}/lib/toplink-essentials.jar"/>
+     <!-- Add path your JDBC Driver for running the chapter 12 - Java SE example -->
+
+
+        <pathelement location="${J2EE_HOME}/lib/ojdbc14.jar"/>
+             <pathelement location="${J2EE_HOME}/lib/ant/lib/xercesImpl.jar"/>
+
+    
+     <pathelement location="${SPRING_HOME}/dist/modules/spring-jpa.jar"/>
+         <pathelement location="${SPRING_HOME}/dist/modules/spring-dao.jar"/>
+         <pathelement location="${SPRING_HOME}/dist/spring.jar"/>
+         <pathelement location="${SPRING_HOME}/dist/modules/spring-beans.jar"/>
+
+
+    <!-- Compile classpath for J2EE based applications for OC4J -->
+
+        <pathelement location="."/>
+         <pathelement location="${J2EE_HOME}/lib/jndi.jar"/>
+         <pathelement location="${J2EE_HOME}/lib/ejb.jar"/>
+         <pathelement location="${J2EE_HOME}/lib/ejb30.jar"/>
+         <pathelement location="${J2EE_HOME}/lib/persistence.jar"/>
+         <pathelement location="${J2EE_HOME}/lib/jms.jar"/>
+    
+
+ <!-- Compile classpath for J2EE based applications for JBoss -->
+         <pathelement location="${J2EE_HOME}/server/all/deploy/ejb3.deployer/jboss-ejb3x.jar"/>
+         <pathelement location="${J2EE_HOME}/server/all/lib/jboss-j2ee.jar"/>
+         <pathelement location="${J2EE_HOME}/server/all/lib/ejb3-persistence.jar"/>
+
+    </path>
+    
+   <property name="common.j2ee.class.path" refid="common.j2ee.class.path"/>
+
+    <!-- Target for displaying build information. -->
+    <target name="common">
+        <echo message="BuildName: ${ant.project.name}"/>
+        <echo message="BuildHome: ${basedir}"/>
+        <echo message="BuildFile: ${ant.file}"/>
+        <echo message="BuildJVM: ${ant.java.version}"/>
+    </target>
+
+    <target name="db-setup" depends="init" description="Database setup for Derby">
+        <sql driver="${derby.driver}"
+            url="${derby.url}"
+            userid="${derby.username}" password="${derby.password}"
+            onerror="continue" 
+            print="yes"
+            src="sql/tables.sql"
+            classpath="${JAVA_HOME}/db/lib/derbyclient.jar" />
+    </target>
+
+    <target name="drop-que">
+        <exec executable="${J2EE_HOME}/bin/${ASADMIN}" failonerror="true" vmlauncher="false">
+            <arg line=" --host ${admin.host}" />
+            <arg line=" --port ${admin.port}" />
+            <arg line=" delete-jms-resource" />
+            <arg line="${jms.queue}" />
+        </exec>
+    </target>
+	
+    <target name="crt-que">
+        <exec executable="${J2EE_HOME}/bin/${ASADMIN}" failonerror="true" vmlauncher="false">
+            <arg line=" --host ${admin.host}" />
+            <arg line=" --port ${admin.port}" />
+            <arg line=" create-jms-resource" />
+            <arg line=" --restype javax.jms.Queue" />
+            <arg line="${jms.queue}" />
+        </exec>
+    </target>
+
+    </project>
