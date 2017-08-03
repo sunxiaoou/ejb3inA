@@ -243,7 +243,7 @@
             <classpath>
              <pathelement location="${lib.dir}/${cli.name}.jar"/>
              <pathelement location="${bld.ejb.dir}"/>
-             <pathelement location="${WLS_HOME}/server/lib/wlclient.jar"/>
+             <pathelement location="${WLS_HOME}/server/lib/weblogic.jar"/>
            </classpath>
         </java>
 

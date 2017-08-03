@@ -5,19 +5,19 @@
 
 <!-- ** Customize as per your environment **** -->
  
-   <property name="BEA_HOME" value="${env.BEA_HOME}"/>       
-   <property name="WLS_HOME" value="${env.WL_HOME}"/>
+    <property name="BEA_HOME" value="${env.BEA_HOME}"/>       
+    <property name="WLS_HOME" value="${env.WL_HOME}"/>
     <property name="SPRING_HOME" value="${env.SPRING_HOME}"/>
-           <property name="DOMAIN_HOME" value="${env.DOMAIN_HOME}"/>
-        <property name="domain" value="mydomain" />
-        <property name="java.class.path" value="${env.CLASSPATH}" />
-        <property name="server.name" value="myserver" />
+    <property name="DOMAIN_HOME" value="${env.DOMAIN_HOME}"/>
+    <property name="domain" value="{env.DOMAIN_HOME" />
+    <property name="java.class.path" value="${env.CLASSPATH}" />
+    <property name="server.name" value="${env.SERVER_NAME}" />
 
-   <property name="admin.host" value="localhost" />
-        <property name="admin.port" value="7001" />
-        <property name="admin.user" value="weblogic" />
-        <property name="admin.password" value="weblogic1" />
-        <property name="http.port" value="7001" />
+    <property name="admin.host" value="localhost" />
+    <property name="admin.port" value="7001" />
+    <property name="admin.user" value="weblogic" />
+    <property name="admin.password" value="weblogic1" />
+    <property name="http.port" value="7001" />
 
     <property name="derby.driver" value="org.apache.derby.jdbc.ClientDriver" />
     <property name="derby.url" value="jdbc:derby://localhost:1527/sample;create=true;ServerName=localhost;databaseName=sample" />
