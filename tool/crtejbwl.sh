@@ -78,8 +78,8 @@ cat > $module/build.xml 2> /dev/null <<!
         <java classname="$package.${ejbname}Client" fork="yes">
             <classpath>
                 <pathelement location="$module.jar"/>
-                <pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/>
-                <!-- pathelement location="\${WLS_HOME}/server/lib/weblogic.jar"/-->
+                <!-- pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/-->
+                <pathelement location="\${WLS_HOME}/server/lib/weblogic.jar"/>
             </classpath>
         </java>
     </target>
