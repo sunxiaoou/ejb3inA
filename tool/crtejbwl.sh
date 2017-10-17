@@ -38,7 +38,9 @@ cat > $module/build.xml 2> /dev/null <<!
                 <include name="ejb-jar.xml"/>
                 <include name="weblogic-ejb-jar.xml"/>
             </metainf -->
-            <fileset dir="\${bld.dir}"/>
+            <fileset dir="\${bld.dir}">
+                <exclude name="**/\${ejb.name}Client.class"/>
+            </fileset>
         </jar>
     </target>
 
@@ -77,7 +79,7 @@ cat > $module/build.xml 2> /dev/null <<!
         <echo message="Executing client class"/>
         <java classname="$package.${ejbname}Client" fork="yes">
             <classpath>
-                <pathelement location="$module.jar"/>
+                <pathelement location="\${bld.dir}"/>
                 <!-- pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/-->
                 <pathelement location="\${WLS_HOME}/server/lib/weblogic.jar"/>
             </classpath>
@@ -94,7 +96,7 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
-java -classpath \$CLASSPATH:$module.jar \\
+java -classpath \$CLASSPATH:bld \\
     $package.${ejbname}Client \\
     t3://$host:$port
 !
