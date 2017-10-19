@@ -110,13 +110,42 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+
 @Path("$resname")
 public class $resname {
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String sayHello() {
-        return "hello world!";
-    }
+  private static final JsonBuilderFactory bf = Json.createBuilderFactory(null);
+
+  @GET
+  /*
+  @Produces(MediaType.TEXT_PLAIN)
+  public String sayHello() {
+    return "hello world!";
+  }
+  */
+
+  @Produces(MediaType.APPLICATION_JSON)
+  public JsonObject doGet() {
+    return bf.createObjectBuilder()
+        .add("firstName", "John")
+        .add("lastName", "Smith")
+        .add("age", 25)
+        .add("address", bf.createObjectBuilder()
+            .add("streetAddress", "21 2nd Street")
+            .add("city", "New York")
+            .add("state", "NY")
+            .add("postalCode", "10021"))
+        .add("phoneNumber", bf.createArrayBuilder()
+            .add(bf.createObjectBuilder()
+                .add("type", "home")
+                .add("number", "212 555-1234"))
+            .add(bf.createObjectBuilder()
+                .add("type", "fax")
+                .add("number", "646 555-4567")))
+        .build();
+  }
 }
 !
 
@@ -151,6 +180,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import javax.json.JsonObject;
+
 public class ${resname}Client {
     public static void main(String[] args) {
         Client client = ClientBuilder.newClient();
@@ -158,10 +189,12 @@ public class ${resname}Client {
         WebTarget resourceWebTarget;
         resourceWebTarget = target.path("resources/$resname");
         Invocation.Builder invocationBuilder;
-        invocationBuilder = resourceWebTarget.request(MediaType.TEXT_PLAIN_TYPE);
+        // invocationBuilder = resourceWebTarget.request(MediaType.TEXT_PLAIN);
+        invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder.get();
         System.out.println(response.getStatus());
-        System.out.println(response.readEntity(String.class));
+        // System.out.println(response.readEntity(String.class));
+        System.out.println(response.readEntity(JsonObject.class));
     }
 }
 !
