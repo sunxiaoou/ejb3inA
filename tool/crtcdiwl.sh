@@ -88,7 +88,7 @@ createWeb()
 mb=`echo ${bean}Managed | sed 's/^./\L&/'`
 cat > $webdir/index.xhtml 2> /dev/null <<!
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
@@ -111,7 +111,7 @@ cat > $webdir/index.xhtml 2> /dev/null <<!
 
 cat > $webdir/template.xhtml 2> /dev/null <<!
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
@@ -143,13 +143,13 @@ body {
     background-color: #ffffff;
     font-size: 12px;
     font-family: Verdana, "Verdana CE",  Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
-    color: #000000;  
+    color: #000000;
     margin: 10px;
 }
 
 h1 {
     font-family: Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
-    border-bottom: 1px solid #AFAFAF; 
+    border-bottom: 1px solid #AFAFAF;
     font-size:  16px;
     font-weight: bold;
     margin: 0px;
@@ -170,11 +170,11 @@ a:link:hover, a:visited:hover  {
 }
 !
 
-cat > $webdir/WEB-INF/web.xml 2> /dev/null <<!
+cat > $webinf/web.xml 2> /dev/null <<!
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.1" 
-         xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<web-app version="3.1"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
@@ -225,7 +225,7 @@ import javax.inject.Named;
 public class ${bean}Managed {
     @Inject
     $bean obj;
-    
+
     private String name;
     private String salutation;
 
@@ -249,6 +249,54 @@ public class ${bean}Managed {
 
 }
 
+creatExtension()
+{
+touch $webinf/beans.xml
+cat > $webinf/classes/META-INF/services/javax.enterprise.inject.spi.Extension 2> /dev/null <<!
+com.xo.$module.${bean}Extension
+!
+
+cat > $javadir/${bean}Extension.java 2> /dev/null <<!
+package $package;
+
+import java.util.Set;
+
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.AfterDeploymentValidation;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.BeforeBeanDiscovery;
+import javax.enterprise.inject.spi.Extension;
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
+
+public class ${bean}Extension implements Extension {
+
+    void beforeBeanDiscovery(@Observes BeforeBeanDiscovery bbd) {
+        System.out.println("Beginning the scanning process");
+    }
+
+    <T> void processAnnotatedType(@Observes ProcessAnnotatedType<T> pat) {
+        System.out.println("scanning type: " + pat.getAnnotatedType().getJavaClass().getName());
+    }
+
+    void afterBeanDiscovery(@Observes AfterBeanDiscovery abd) {
+        System.out.println("Finished the scanning process");
+    }
+
+    void afterDeploymentValidation(@Observes AfterDeploymentValidation adv, BeanManager bm) {
+        Set<Bean<?>> beans = bm.getBeans($bean.class);
+        if (beans == null || beans.isEmpty()) {
+            throw new IllegalStateException("Could not find beans");
+        }
+        for (Bean<?> bean : beans) {
+            System.out.println("validated bean: " + bean);
+        }
+    }
+}
+!
+
+}
 
 
 #### main ####
@@ -270,11 +318,13 @@ bean=$2
 package=com.xo.$module
 
 webdir=$module/src/main/webapp
+webinf=$module/src/main/webapp/WEB-INF
 javadir=$module/src/main/java/com/xo/$module
 mkdir -p $webdir/resources/css
-mkdir -p $webdir/WEB-INF
+mkdir -p $webinf/classes/META-INF/services/
 mkdir -p $javadir
 
 createBuild
 createWeb
 createJava
+creatExtension
