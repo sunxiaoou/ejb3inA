@@ -83,6 +83,36 @@ cat > $module/build.xml 2> /dev/null <<!
 
 }
 
+createPom()
+{
+cat > $module/pom.xml 2> /dev/null <<!
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>$group</groupId>
+    <artifactId>$module</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>$module Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>$module</finalName>
+    </build>
+</project>
+!
+
+}
+
 createWeb()
 {
 mb=`echo ${bean}Managed | sed 's/^./\L&/'`
@@ -201,7 +231,7 @@ cat > $webinf/web.xml 2> /dev/null <<!
 createJava()
 {
 cat > $javadir/$bean.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.enterprise.context.Dependent;
 
@@ -214,7 +244,7 @@ public class $bean {
 !
 
 cat > $javadir/${bean}Managed.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -257,7 +287,7 @@ com.xo.$module.${bean}Extension
 !
 
 cat > $javadir/${bean}Extension.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import java.util.Set;
 
@@ -315,7 +345,7 @@ initport=7001
 
 module=$1
 bean=$2
-package=com.xo.$module
+group=com.xo
 
 webdir=$module/src/main/webapp
 webinf=$module/src/main/webapp/WEB-INF
@@ -325,6 +355,7 @@ mkdir -p $webinf/classes/META-INF/services/
 mkdir -p $javadir
 
 createBuild
+createPom
 createWeb
 createJava
-creatExtension
+# creatExtension
