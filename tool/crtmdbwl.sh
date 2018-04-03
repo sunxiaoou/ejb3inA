@@ -75,7 +75,7 @@ cat > $module/build.xml 2> /dev/null <<!
 
     <target name="run" depends="init">
         <echo message="Executing client class"/>
-        <java classname="$package.\${ejb.name}Client" fork="yes">
+        <java classname="$group.$module.\${ejb.name}Client" fork="yes">
             <classpath>
                 <pathelement location="\${app.name}.jar"/>
                 <!-- pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/-->
@@ -87,6 +87,42 @@ cat > $module/build.xml 2> /dev/null <<!
 </project>
 !
 
+cat > $module/pom.xml 2> /dev/null <<!
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>$group</groupId>
+    <artifactId>$module</artifactId>
+    <packaging>ejb</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>$module Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>$module</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <ejbVersion>3.2</ejbVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+!
+
 }
 
 createRun()
@@ -95,7 +131,7 @@ cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
 java -classpath \$CLASSPATH:$module.jar \\
-    $package.${ejbname}Client \\
+    $group.$module.${ejbname}Client \\
     t3://$host:$port
 !
 
@@ -106,7 +142,7 @@ chmod u+x $module/runclt.sh
 createCode()
 {
 cat > $srcdir/${ejbname}Bean.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.ejb.MessageDriven;
 import javax.ejb.MessageDrivenContext;
@@ -150,7 +186,7 @@ public class ${ejbname}Bean implements MessageListener {
 !
 
 cat > $srcdir/${ejbname}Client.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -234,9 +270,9 @@ initport=7001
 module=$1
 ejbname=$2
 queue=jms/Queue
-package=com.xo.$module
+group=com.xo
 
-srcdir=$module/src/com/xo/$module
+srcdir=$module/src/main/java/com/xo/$module
 mkdir -p $srcdir
 
 createBuild
