@@ -77,7 +77,7 @@ cat > $module/build.xml 2> /dev/null <<!
 
     <target name="run" depends="init">
         <echo message="Executing client class"/>
-        <java classname="$package.${ejbname}Client" fork="yes">
+        <java classname="$group.$module.${ejbname}Client" fork="yes">
             <classpath>
                 <pathelement location="\${bld.dir}"/>
                 <!-- pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/-->
@@ -89,6 +89,42 @@ cat > $module/build.xml 2> /dev/null <<!
 </project>
 !
 
+cat > $module/pom.xml 2> /dev/null <<!
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>$group</groupId>
+    <artifactId>$module</artifactId>
+    <packaging>ejb</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>$module Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>$module</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <ejbVersion>3.2</ejbVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+!
+
 }
 
 createRun()
@@ -96,8 +132,9 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
-java -classpath \$CLASSPATH:bld \\
-    $package.${ejbname}Client \\
+# java -classpath \$CLASSPATH:bld \\
+java -classpath \$CLASSPATH:target/classes \\
+    $group.$module.${ejbname}Client \\
     t3://$host:$port
 !
 
@@ -108,24 +145,41 @@ chmod u+x $module/runclt.sh
 createCode()
 {
 cat > $srcdir/$ejbname.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.ejb.Remote;
 
 @Remote
 public interface $ejbname {
-    public String welcome(String name);
+    String welcome(String name);
+}
+!
+
+cat > $srcdir/${ejbname}Interceptor.java 2> /dev/null <<!
+package $group.$module;
+
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
+
+public class ${ejbname}Interceptor {
+    @AroundInvoke
+    public Object visitFence(InvocationContext ic) throws Exception {
+        System.out.println("*** Entered "+ ic.getMethod().getName() + " ***");
+        return ic.proceed();
+    }
 }
 !
 
 cat > $srcdir/${ejbname}Bean.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 @Stateless(mappedName="$ejbname")
-public class ${ejbname}Bean implements $ejbname {
+@Interceptors(${ejbname}Interceptor.class)
 
+public class ${ejbname}Bean implements $ejbname {
     public String welcome(String name) {
         return String.format("Welcome %s to $ejbname!", name);
     }
@@ -133,7 +187,7 @@ public class ${ejbname}Bean implements $ejbname {
 !
 
 cat > $srcdir/${ejbname}Client.java 2> /dev/null <<!
-package $package;
+package $group.$module;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -162,7 +216,7 @@ public class ${ejbname}Client {
             url = args[0];
 
         Context ic = getInitialContext();
-        $ejbname ejb = ($ejbname)ic.lookup("$ejbname#$package.$ejbname");
+        $ejbname ejb = ($ejbname)ic.lookup("$ejbname#$group.$module.$ejbname");
         System.out.println((new Date()).toString() + " Invoking...");
         System.out.println(ejb.welcome("Curious George"));
         System.out.println((new Date()).toString() + " Invoked");
@@ -190,9 +244,9 @@ initport=7001
 
 module=$1
 ejbname=$2
-package=com.xo.$module
+group=com.xo
 
-srcdir=$module/src/com/xo/$module
+srcdir=$module/src/main/java/com/xo/$module
 mkdir -p $srcdir
 
 createBuild
