@@ -14,6 +14,10 @@ cat > $module/pom.xml 2> /dev/null <<!
     <version>1.0-SNAPSHOT</version>
     <name>$module Maven Webapp</name>
     <url>http://maven.apache.org</url>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>        
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
