@@ -2,7 +2,7 @@
 
 crtUndeploy()
 {
-cat > $undeploy 2> /dev/null <<!
+cat > $tmppy 2> /dev/null <<!
 def undeploy_app():
     try:
         connect('$user', '$passwd', '$url')
@@ -22,7 +22,7 @@ exit()
 
 crtDeploy()
 {
-cat > $deploy 2> /dev/null <<!
+cat > $tmppy 2> /dev/null <<!
 def deploy_app():
     try:
         connect('$user', '$passwd', '$url')
@@ -43,12 +43,11 @@ exit()
 
 if [ $# -lt 1 ]
 then
-	echo "Usage: $0 appfile | appname"
-	exit 1
+    echo "Usage: $0 appfile | appname"
+    exit 1
 fi
 
-undeploy=/tmp/undeploy.py
-deploy=/tmp/deploy.py
+tmppy=/tmp/wlst_$$.py
 wlsjar=~/depot/src123100_build/Oracle_Home/wlserver/server/lib/weblogic.jar
 wlst=weblogic.WLST
 
@@ -64,17 +63,17 @@ ext=${f##*.}
 
 if [ "$app" = "$file" ]
 then
-	crtUndeploy
-	java -cp $wlsjar $wlst $undeploy
-	exit 0
+    crtUndeploy
+    java -cp $wlsjar $wlst $tmppy
+    exit 0
 fi
 
 if [ "$ext" != "jar" -a "$ext" != "war" -a "$ext" != "ear" ]
 then
-	echo "Usage: $0 appfile | appname"
-	exit 1
+    echo "Usage: $0 appfile | appname"
+    exit 1
 fi
 
 crtDeploy
-java -cp $wlsjar $wlst $deploy
+java -cp $wlsjar $wlst $tmppy
 exit 0
