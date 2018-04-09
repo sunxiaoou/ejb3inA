@@ -130,7 +130,7 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
-java -classpath \$CLASSPATH:$module.jar \\
+java -classpath \$CLASSPATH:target/$module.jar \\
     $group.$module.${ejbname}Client \\
     t3://$host:$port
 !
