@@ -1,20 +1,33 @@
 #!/bin/sh
 
-if [ $# -lt 1 ]
-then
-	echo "Usage: $0 cmd (start | stop)"
-	exit 1
-fi
+usage() {
+	echo "Usage: $0 start"
+	echo "       $0 stop"
+	echo "       $0 deploy appFile"
+	echo "       $0 undeploy appName"
+}
 
-target=$1
 
-if [ $target = "start" ]
+cmd=$1
+app=$2
+
+if [ $# -eq 1 -a x$cmd = "xstart" ]
 then
 	asadmin start-domain --verbose --debug &
 	asadmin start-database
-else
+elif [ $# -eq 1 -a x$cmd = "xstop" ]
+then
 	asadmin stop-database
 	asadmin stop-domain domain1
+elif [ $# -eq 2 -a x$cmd = "xdeploy" ]
+then
+	asadmin --host localhost --port 4848 --user admin deploy $app
+elif [ $# -eq 2 -a x$cmd = "xundeploy" ]
+then
+	asadmin --host localhost --port 4848 --user admin undeploy $app
+else
+	usage
+	exit 1
 fi
 
 # asadmin list-jndi-entries
