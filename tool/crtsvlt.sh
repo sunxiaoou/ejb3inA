@@ -90,8 +90,8 @@ public class $svltname extends HttpServlet {
             throws IOException, ServletException {
         resp.setContentType("text/html");
         PrintWriter out = resp.getWriter();
-        out.println("<html><head><title>hello world!</title></head>" +
-                "<body>hello world!!</h1></body></html>");
+        out.println("<html><head><title>$svltname</title></head>" +
+                "<body>Hello World!</h1></body></html>");
     }
 }
 !

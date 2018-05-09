@@ -3,7 +3,9 @@
 usage() {
 	echo "Usage: $0 deploy appFile"
 	echo "       $0 undeploy appName"
-	echo "       $0 redeploy appName"
+	echo "       $0 redeploy appFile"
+	echo "       $0 startapp appName"
+	echo "       $0 stopapp appName"
 }
 
 crtDeploy()
@@ -39,7 +41,7 @@ def undeploy_app():
     except Exception,e:
         e.printStackTrace()
         dumpStack()
-        raise("Error Deploy App for WLST AntTask tests")
+        raise("Error Undeploy App for WLST AntTask tests")
 
 undeploy_app()
 exit()
@@ -59,12 +61,53 @@ def deploy_app():
     except Exception,e:
         e.printStackTrace()
         dumpStack()
-        raise("Error Deploy App for WLST AntTask tests")
+        raise("Error Redeploy App for WLST AntTask tests")
 
 deploy_app()
 exit()
 !
 }
+
+crtStartApp()
+{
+cat > $tmppy 2> /dev/null <<!
+def start_app():
+    try:
+        connect('$user', '$passwd', '$url')
+        startApplication('$app', block='true')
+        java.lang.Thread.sleep(1000)
+        disconnect()
+        # saveDomain()
+    except Exception,e:
+        e.printStackTrace()
+        dumpStack()
+        raise("Error Start App for WLST AntTask tests")
+
+start_app()
+exit()
+!
+}
+
+crtStopApp()
+{
+cat > $tmppy 2> /dev/null <<!
+def stop_app():
+    try:
+        connect('$user', '$passwd', '$url')
+        stopApplication('$app', block='true')
+        java.lang.Thread.sleep(1000)
+        disconnect()
+        # saveDomain()
+    except Exception,e:
+        e.printStackTrace()
+        dumpStack()
+        raise("Error Stop App for WLST AntTask tests")
+
+stop_app()
+exit()
+!
+}
+
 
 if [ $# -lt 2 ]
 then
@@ -112,6 +155,20 @@ then
 		java -cp $wlsjar $wlst $tmppy
 		exit 0
 	fi
+fi
+
+if [ x$cmd = "xstartapp" -a "$app" = "$file" ]
+then
+    crtStartApp
+    java -cp $wlsjar $wlst $tmppy
+    exit 0
+fi
+
+if [ x$cmd = "xstopapp" -a "$app" = "$file" ]
+then
+    crtStopApp
+    java -cp $wlsjar $wlst $tmppy
+    exit 0
 fi
 
 usage
