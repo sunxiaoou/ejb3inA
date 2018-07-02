@@ -132,7 +132,7 @@ ext=${f##*.}
 
 if [ x$cmd = "xdeploy" ]
 then
-	if [ "$ext" = "jar" -o "$ext" = "war" -o "$ext" = "ear" ]
+	if [ "$ext" = "jar" -o "$ext" = "war" -o "$ext" = "ear" -o -d "$file" ]
 	then
 		crtDeploy
 		java -cp $wlsjar $wlst $tmppy
@@ -149,7 +149,7 @@ fi
 
 if [ x$cmd = "xredeploy" ]
 then
-	if [ "$ext" = "jar" -o "$ext" = "war" -o "$ext" = "ear" ]
+	if [ "$ext" = "jar" -o "$ext" = "war" -o "$ext" = "ear" -o -d "$file" ]
 	then
 		crtRedeploy
 		java -cp $wlsjar $wlst $tmppy
