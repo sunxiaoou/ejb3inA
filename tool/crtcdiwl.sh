@@ -2,89 +2,6 @@
 
 createBuild()
 {
-cat > $module/build.xml 2> /dev/null <<!
-<project name="$bean" default="package" basedir=".">
-    <description>
-        Build, deploy and run a CDI example for Weblogic.
-    </description>
-
-    <property environment="env"/>
-    <property name="WLS_HOME" value="\${env.WL_HOME}"/>
-
-    <property name="admin.host" value="$host"/>
-    <property name="admin.port" value="$port"/>
-    <property name="admin.user" value="$user"/>
-    <property name="admin.password" value="$password"/>
-
-    <property name="bean.name" value="$bean"/>
-    <property name="app.name" value="$module"/>
-    <property name="src.dir" value="src"/>
-    <property name="bld.dir" value="bld"/>
-
-    <taskdef name="wldeploy" classname="weblogic.ant.taskdefs.management.WLDeploy"/>
-    <taskdef name="openbrowser" classname="weblogic.ant.taskdefs.utils.OpenBrowser"/>
-
-    <target name="init">
-        <mkdir dir="\${bld.dir}/WEB-INF/classes"/>
-    </target>
-
-    <target name="compile" depends="init">
-        <copy todir="\${bld.dir}" preservelastmodified="true" failonerror="false">
-            <fileset dir="\${src.dir}/main/webapp"/>
-        </copy>
-        <javac srcdir="\${src.dir}" destdir="\${bld.dir}/WEB-INF/classes"/>
-    </target>
-
-    <target name="package" depends="compile">
-        <war destfile="\${app.name}.war" duplicate="fail" needxmlfile="false">
-            <fileset dir="\${bld.dir}" />
-        </war>
-    </target>
-
-    <target name="clean" depends="init">
-        <delete includeemptydirs="true">
-            <fileset dir="." includes="\${app.name}.war,**/*.class" defaultexcludes="no"/>
-            <fileset dir="\${bld.dir}" />
-        </delete>
-    </target>
-
-    <target name="undeploy" depends="init" unless="ee">
-        <echo message="Undeploying \${app.name}"/>
-        <wldeploy
-            user="\${admin.user}"
-            password="\${admin.password}"
-            adminurl="t3://\${admin.host}:\${admin.port}"
-            debug="true"
-            action="undeploy"
-            name="\${app.name}"
-            failonerror="\${failondeploy}"/>
-    </target>
-
-    <target name="deploy" depends="init" unless="ee">
-        <echo message="Deploying \${app.name}"/>
-        <wldeploy
-            user="\${admin.user}"
-            password="\${admin.password}"
-            adminurl="t3://\${admin.host}:\${admin.port}"
-            debug="true"
-            action="deploy"
-            name="\${app.name}"
-            source="\${app.name}.war"
-            failonerror="\${failondeploy}"/>
-    </target>
-
-    <target name="run" depends="init">
-        <openbrowser failonerror="\${failonrun}"
-            url="http://\${admin.host}:\${admin.port}/\${app.name}"/>
-    </target>
-
-</project>
-!
-
-}
-
-createPom()
-{
 cat > $module/pom.xml 2> /dev/null <<!
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -110,6 +27,18 @@ cat > $module/pom.xml 2> /dev/null <<!
     </build>
 </project>
 !
+
+}
+
+createRun()
+{
+cat > $module/runclt.sh 2> /dev/null <<!
+#!/bin/sh
+
+xdg-open http://$host:$port/$module
+!
+
+chmod u+x $module/runclt.sh
 
 }
 
@@ -355,7 +284,7 @@ mkdir -p $webinf/classes/META-INF/services/
 mkdir -p $javadir
 
 createBuild
-createPom
+createRun
 createWeb
 createJava
 # creatExtension

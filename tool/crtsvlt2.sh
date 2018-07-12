@@ -156,8 +156,10 @@ initport=7001
 
 module=$1
 svltname=$2
-beanname=`echo $svltname | sed 's/[^0-9]*\([0-9]\+\)/Bean\1/'`
-ejbname=`echo $svltname | sed 's/[^0-9]*\([0-9]\+\)/Ejb\1/'`
+beanname=`echo $svltname | \
+    sed -e 's/[^0-9]*\([0-9]\+\)/Bean\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Bean\1/'`
+ejbname=`echo $svltname | \
+    sed -e 's/[^0-9]*\([0-9]\+\)/Ejb\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Ejb\1/'`
 group=com.xo
 
 webdir=$module/src/main/webapp
