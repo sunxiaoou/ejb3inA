@@ -49,7 +49,9 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
-xdg-open http://$host:$port/$module
+# xdg-open http://$host:$port/$module
+curl http://$host:$port/$module
+echo
 !
 
 chmod u+x $module/runclt.sh
