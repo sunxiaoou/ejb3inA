@@ -132,10 +132,13 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
-# java -classpath \$CLASSPATH:bld \\
+# CLASSPATH=~/depot/src123100_build/Oracle_Home/wlserver/server/lib/weblogic.jar
+
 java -classpath \$CLASSPATH:target/classes \\
     $group.$module.${ejbname}Client \\
     t3://$host:$port
+
+#    -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 \\
 !
 
 chmod u+x $module/runclt.sh
