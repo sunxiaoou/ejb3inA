@@ -130,9 +130,9 @@ public class $intcpname implements Serializable {
     }
 
     @AroundConstruct
-    public Object aroundConstruct(InvocationContext ic) throws Exception {
+    public void aroundConstruct(InvocationContext ic) throws Exception {
         System.out.println("*** Construct ***");
-        return ic.proceed();
+        ic.proceed();
     }
 }
 !
