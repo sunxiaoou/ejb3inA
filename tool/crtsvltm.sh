@@ -148,7 +148,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
-@MessageDriven(mappedName = "jms/Queue", activationConfig = {
+@MessageDriven(mappedName = "jms/$qname", activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue")
 })
 
@@ -171,7 +171,6 @@ public class $mdbname implements MessageListener {
 cat > $javadir/$prodrname.java 2> /dev/null <<!
 package $group.$module;
 
-import javax.annotation.PostConstruct;
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -180,13 +179,12 @@ import javax.naming.NamingException;
 public class $prodrname {
     private static String JMS_CONN_FACTORY = "weblogic.jms.XAConnectionFactory";    // For WLS
     // private static String JMS_CONN_FACTORY = "jms/__defaultConnectionFactory";   // For GF
-    private static String JMS_QUEUE = "jms/Queue";
+    private static String JMS_QUEUE = "jms/$qname";
 
     private ConnectionFactory connectionFactory;
     private Queue queue;
 
-    @PostConstruct
-    public void init() {
+    public $prodrname() {
         try {
             Context ctx = new InitialContext();
             connectionFactory = (ConnectionFactory)ctx.lookup(JMS_CONN_FACTORY);
@@ -222,17 +220,14 @@ public class $prodrname {
 cat > $javadir/$svltname.java 2> /dev/null <<!
 package $group.$module;
 
-import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 
 public class $svltname extends HttpServlet {
-    @Inject
-    $prodrname producer;
 
-    public void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, ServletException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        $prodrname producer = new $prodrname();
         producer.sendQueueMsg();
 
         resp.setContentType("text/html");
@@ -268,6 +263,8 @@ mdbname=`echo $svltname | \
     sed -e 's/[^0-9]*\([0-9]\+\)/Mdb\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Mdb\1/'`
 prodrname=`echo $svltname | \
     sed -e 's/[^0-9]*\([0-9]\+\)/Prodr\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Prodr\1/'`
+qname=`echo $svltname | \
+    sed -e 's/[^0-9]*\([0-9]\+\)/Q\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Q\1/'`
 group=com.xo
 
 webdir=$module/src/main/webapp
