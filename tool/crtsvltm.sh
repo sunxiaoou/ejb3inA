@@ -257,14 +257,23 @@ initport=7001
 
 module=$1
 svltname=$2
-intcpname=`echo $svltname | \
-    sed -e 's/[^0-9]*\([0-9]\+\)/Intcp\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Intcp\1/'`
-mdbname=`echo $svltname | \
-    sed -e 's/[^0-9]*\([0-9]\+\)/Mdb\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Mdb\1/'`
-prodrname=`echo $svltname | \
-    sed -e 's/[^0-9]*\([0-9]\+\)/Prodr\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Prodr\1/'`
-qname=`echo $svltname | \
-    sed -e 's/[^0-9]*\([0-9]\+\)/Q\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Q\1/'`
+
+# intcpname=`echo $svltname | \
+#    sed -e 's/[^0-9]*\([0-9]\+\)/Intcp\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Intcp\1/'`
+intcpname="Intcp${svltname##*[^0-9]}"
+
+# mdbname=`echo $svltname | \
+#    sed -e 's/[^0-9]*\([0-9]\+\)/Mdb\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Mdb\1/'`
+mdbname="Mdb${svltname##*[^0-9]}"
+
+# prodrname=`echo $svltname | \
+#    sed -e 's/[^0-9]*\([0-9]\+\)/Prodr\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Prodr\1/'`
+prodrname="Prodr${svltname##*[^0-9]}"
+
+# qname=`echo $svltname | \
+#    sed -e 's/[^0-9]*\([0-9]\+\)/Q\1/' -e 's/[A-Z][a-z]*\([A-Z][a-z]*\)/Q\1/'`
+qname="Q${svltname##*[^0-9]}"
+
 group=com.xo
 
 webdir=$module/src/main/webapp
