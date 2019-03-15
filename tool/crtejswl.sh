@@ -45,6 +45,8 @@ createRun()
 cat > $module/runclt.sh 2> /dev/null <<!
 #!/bin/sh
 
+# Prerequisite: From console, add "myuser / letmein0" in "Users and Groups" in "myrealm"
+
 # CLASSPATH=~/depot/src123100_build/Oracle_Home/wlserver/server/lib/weblogic.jar
 
 java -classpath \$CLASSPATH:target/classes \\

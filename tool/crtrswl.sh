@@ -2,86 +2,51 @@
 
 createBuild()
 {
-cat > $module/build.xml 2> /dev/null <<!
-<project name="$resname" default="package" basedir=".">
-    <description>
-        Build, deploy and run the JAX-RS example for Weblogic.
-    </description>
-
-    <property environment="env"/>
-    <property name="WLS_HOME" value="\${env.WL_HOME}"/>
-
-    <property name="admin.host" value="$host"/>
-    <property name="admin.port" value="$port"/>
-    <property name="admin.user" value="$user"/>
-    <property name="admin.password" value="$password"/>
-
-    <property name="res.name" value="$resname"/>
-    <property name="app.name" value="$module"/>
-    <property name="src.dir" value="src"/>
-    <property name="bld.dir" value="bld"/>
-    <property name="etc.dir" value="etc"/>
-
-    <taskdef name="wldeploy" classname="weblogic.ant.taskdefs.management.WLDeploy"/>
-
-    <target name="init">
-        <mkdir dir="\${bld.dir}/WEB-INF/classes"/>
-    </target>
-
-    <target name="compile" depends="init">
-        <javac srcdir="\${src.dir}" destdir="\${bld.dir}/WEB-INF/classes"/>
-    </target>
-
-    <target name="package" depends="compile">
-        <war destfile="\${app.name}.war" duplicate="fail" needxmlfile="false">
-            <fileset dir="\${bld.dir}">
-                <exclude name="**/\${res.name}Client.class"/>
-            </fileset>
-        </war>
-    </target>
-
-    <target name="clean" depends="init">
-        <delete>
-            <fileset dir="." includes="\${app.name}.war,**/*.class" defaultexcludes="no"/>
-        </delete>
-    </target>
-
-    <target name="undeploy" depends="init" unless="ee">
-        <echo message="Undeploying \${app.name}"/>
-        <wldeploy
-            user="\${admin.user}"
-            password="\${admin.password}"
-            adminurl="t3://\${admin.host}:\${admin.port}"
-            debug="true"
-            action="undeploy"
-            name="\${app.name}"
-            failonerror="\${failondeploy}"/>
-    </target>
-
-    <target name="deploy" depends="init" unless="ee">
-        <echo message="Deploying \${app.name}"/>
-        <wldeploy
-            user="\${admin.user}"
-            password="\${admin.password}"
-            adminurl="t3://\${admin.host}:\${admin.port}"
-            debug="true"
-            action="deploy"
-            name="\${app.name}"
-            source="\${app.name}.war"
-            failonerror="\${failondeploy}"/>
-    </target>
-
-    <target name="run" depends="init">
-        <echo message="Executing client class"/>
-        <java classname="$package.client.${resname}Client" fork="yes">
-            <classpath>
-                <pathelement location="\${bld.dir}/WEB-INF/classes"/>
-                <!-- pathelement location="\${WLS_HOME}/server/lib/wlclient.jar"/-->
-                <pathelement location="\${WLS_HOME}/server/lib/weblogic.jar"/>
-            </classpath>
-        </java>
-    </target>
-
+cat > $module/pom.xml 2> /dev/null <<!
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>$group</groupId>
+    <artifactId>$module</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>$module Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>        
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>$module</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ejb-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <ejbVersion>3.2</ejbVersion>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
 !
 
@@ -100,10 +65,10 @@ chmod u+x $module/curl.sh
 
 }
 
-createCode()
+createJava()
 {
-cat > $srcdir/resource/$resname.java 2> /dev/null <<!
-package $package.resource;
+cat > $javadir/resource/$resname.java 2> /dev/null <<!
+package $group.$module.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -149,15 +114,15 @@ public class $resname {
 }
 !
 
-cat > $srcdir/MyApplication.java 2> /dev/null <<!
-package $package;
+cat > $javadir/MyApplication.java 2> /dev/null <<!
+package $group.$module;
 
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import $package.resource.$resname;
+import $group.$module.resource.$resname;
 
 @ApplicationPath("resources")
 public class MyApplication extends Application {
@@ -170,8 +135,8 @@ public class MyApplication extends Application {
 }
 !
 
-cat > $srcdir/client/${resname}Client.java 2> /dev/null <<!
-package $package.client;
+cat > $javadir/client/${resname}Client.java 2> /dev/null <<!
+package $group.$module.client;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -219,12 +184,12 @@ initport=7001
 
 module=$1
 resname=$2
-package=com.xo.$module
+group=com.xo
 
-srcdir=$module/src/com/xo/$module
-mkdir -p $srcdir/resource
-mkdir -p $srcdir/client
+javadir=$module/src/main/java/com/xo/$module
+mkdir -p $javadir/resource
+mkdir -p $javadir/client
 
 createBuild
 createCurl
-createCode
+createJava

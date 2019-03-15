@@ -1,7 +1,7 @@
 #!/bin/sh
 
 java \
-	-cp "$JAVA_HOME/db/lib/derby.jar:$JAVA_HOME/db/lib/derbynet.jar:$JAVA_HOME/db/lib/derbytools.jar:$JAVA_HOME/db/lib/derbyoptionaltools.jar:$JAVA_HOME/db/lib/derbyclient.jar" \
+	-cp "$DERBY_HOME/lib/derby.jar:$DERBY_HOME/lib/derbynet.jar:$DERBY_HOME/lib/derbytools.jar:$DERBY_HOME/lib/derbyoptionaltools.jar:$DERBY_HOME/lib/derbyclient.jar" \
 	-Dij.driver=org.apache.derby.jdbc.ClientDriver \
 	-Dij.protocol=jdbc:derby: -D"ij.database=//localhost:1527/sample;create=true" \
 	-Dij.user=app -Dij.password=app \
