@@ -52,7 +52,7 @@ cat > $module/pom.xml 2> /dev/null <<!
 
 }
 
-createCurl()
+createRun()
 {
 cat > $module/curl.sh 2> /dev/null <<!
 #!/bin/sh
@@ -61,7 +61,17 @@ curl http://$host:$port/$module/resources/$resname
 echo
 !
 
-chmod u+x $module/curl.sh
+cat > $module/runclt.sh 2> /dev/null <<!
+#!/bin/sh
+
+# CLASSPATH=~/depot/src123100_build/Oracle_Home/wlserver/server/lib/weblogic.jar
+
+java -cp \$CLASSPATH:target/classes \\
+    $group.$module.client.${resname}Client \\
+    http://$host:$port/$module/resources/$resname
+!
+
+chmod u+x $module/curl.sh $module/runclt.sh
 
 }
 
@@ -70,14 +80,13 @@ createJava()
 cat > $javadir/resource/$resname.java 2> /dev/null <<!
 package $group.$module.resource;
 
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
 
 @Path("$resname")
 public class $resname {
@@ -138,25 +147,23 @@ public class MyApplication extends Application {
 cat > $javadir/client/${resname}Client.java 2> /dev/null <<!
 package $group.$module.client;
 
+import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import javax.json.JsonObject;
-
 public class ${resname}Client {
-    public static void main(String[] args) {
+    public static void main(String[] argv) {
+        if (argv.length < 1) {
+            System.out.println(String.format("Usage: %s url",
+                    new Object(){}.getClass().getEnclosingClass().getName()));
+            System.exit(1);
+        }
+
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://$host:$initport/$module");
-        WebTarget resourceWebTarget;
-        resourceWebTarget = target.path("resources/$resname");
-        Invocation.Builder invocationBuilder;
-        // invocationBuilder = resourceWebTarget.request(MediaType.TEXT_PLAIN);
-        invocationBuilder = resourceWebTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
+        // Response response = client.target(argv[0]).request(MediaType.TEXT_PLAIN).get();
+        Response response = client.target(argv[0]).request(MediaType.APPLICATION_JSON).get();
         System.out.println(response.getStatus());
         // System.out.println(response.readEntity(String.class));
         System.out.println(response.readEntity(JsonObject.class));
@@ -191,5 +198,5 @@ mkdir -p $javadir/resource
 mkdir -p $javadir/client
 
 createBuild
-createCurl
+createRun
 createJava
