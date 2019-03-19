@@ -54,10 +54,12 @@ cat > $module/pom.xml 2> /dev/null <<!
 
 createRun()
 {
+url="http://$host:$port/$module/resources/$resname/foo"
+
 cat > $module/curl.sh 2> /dev/null <<!
 #!/bin/sh
 
-curl http://$host:$port/$module/resources/$resname
+curl $url
 echo
 !
 
@@ -67,8 +69,8 @@ cat > $module/runclt.sh 2> /dev/null <<!
 # CLASSPATH=~/depot/src123100_build/Oracle_Home/wlserver/server/lib/weblogic.jar
 
 java -cp \$CLASSPATH:target/classes \\
-    $group.$module.client.${resname}Client \\
-    http://$host:$port/$module/resources/$resname
+    $group.$module.client.$cliname \\
+    $url
 !
 
 chmod u+x $module/curl.sh $module/runclt.sh
@@ -85,6 +87,7 @@ import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -92,17 +95,20 @@ import javax.ws.rs.core.MediaType;
 public class $resname {
   private static final JsonBuilderFactory bf = Json.createBuilderFactory(null);
 
-  @GET
   /*
+  @GET
   @Produces(MediaType.TEXT_PLAIN)
   public String sayHello() {
     return "hello world!";
   }
   */
 
+  @Path("{id}")
+  @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public JsonObject doGet() {
+  public JsonObject getJson(@PathParam("id") String id) {
     return bf.createObjectBuilder()
+        .add("id", id)
         .add("firstName", "John")
         .add("lastName", "Smith")
         .add("age", 25)
@@ -123,7 +129,7 @@ public class $resname {
 }
 !
 
-cat > $javadir/MyApplication.java 2> /dev/null <<!
+cat > $javadir/$appname.java 2> /dev/null <<!
 package $group.$module;
 
 import java.util.HashSet;
@@ -134,7 +140,7 @@ import javax.ws.rs.core.Application;
 import $group.$module.resource.$resname;
 
 @ApplicationPath("resources")
-public class MyApplication extends Application {
+public class $appname extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> classes = new HashSet<Class<?>>();
@@ -144,7 +150,7 @@ public class MyApplication extends Application {
 }
 !
 
-cat > $javadir/client/${resname}Client.java 2> /dev/null <<!
+cat > $javadir/client/$cliname.java 2> /dev/null <<!
 package $group.$module.client;
 
 import javax.json.JsonObject;
@@ -153,7 +159,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class ${resname}Client {
+public class $cliname {
     public static void main(String[] argv) {
         if (argv.length < 1) {
             System.out.println(String.format("Usage: %s url",
@@ -191,6 +197,9 @@ initport=7001
 
 module=$1
 resname=$2
+appname="App${resname##*[^0-9]}"
+cliname="Cli${resname##*[^0-9]}"
+
 group=com.xo
 
 javadir=$module/src/main/java/com/xo/$module
