@@ -251,6 +251,7 @@ group=com.xo
 
 srcdir=$module/src/main/java/com/xo/$module
 mkdir -p $srcdir
+mkdir -p $module/src/main/resources/META-INF
 
 createBuild
 createRun
